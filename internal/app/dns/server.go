@@ -31,7 +31,7 @@ func NewServer(logger *log.Logger, host string, port int, protocol string, regis
 	return server
 }
 
-// ServerDNS is part of dns.Handler interface implementation, handles all DNS requests
+// ServeDNS is part of dns.Handler interface implementation, handles all DNS requests
 func (s *Server) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	var err error
 	resp := new(dns.Msg)
