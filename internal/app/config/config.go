@@ -3,13 +3,13 @@ package config
 import "github.com/spf13/viper"
 
 const (
-	// Domain suffix to add to container name to produce an FQDN, e.g. ".docker." will produce "container.docker." as domain
+	// DomainSuffix - domain suffix to add to container name to produce an FQDN, e.g. ".docker." will produce "container.docker." as domain
 	DomainSuffix = "DOMAIN_SUFFIX"
-	// Hostname/IP for the DNS server
+	// ServerHost - hostname/IP for the DNS server
 	ServerHost = "SERVER_HOST"
-	// Port for the DNS server
+	// ServerPort - port for the DNS server
 	ServerPort = "SERVER_PORT"
-	// Protocol for DNS server e.g. "tcp" or "udp"
+	// ServerProtocol - protocol for DNS server e.g. "tcp" or "udp"
 	ServerProtocol = "SERVER_PROTOCOL"
 )
 
