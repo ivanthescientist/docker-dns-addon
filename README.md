@@ -1,4 +1,7 @@
-# What is this?
+# DockerDNS Addon
+[![Go Report Card](https://goreportcard.com/badge/github.com/ivanthescientist/docker-dns-addon)](https://goreportcard.com/report/github.com/ivanthescientist/docker-dns-addon)
+
+## What is this?
 This is an WIP docker addon/daemon that will in the future provide
 local DNS server for locally deployed docker containers, the main idea is
 to allow host machine to resolve containers by their domain, for now this is done

@@ -7,12 +7,14 @@ import (
 	"strconv"
 )
 
+// DNS server wrapper object for dependency isolation, also implements dns.Handler for convenience
 type Server struct {
 	dnsServer *dns.Server
 	registry  *DomainRegistry
 	logger    *log.Logger
 }
 
+// Create new server on specified host protocol and port and using provided DomainRegistry for domain resolution
 func NewServer(logger *log.Logger, host string, port int, protocol string, registry *DomainRegistry) *Server {
 	server := &Server{}
 
@@ -29,6 +31,7 @@ func NewServer(logger *log.Logger, host string, port int, protocol string, regis
 	return server
 }
 
+// dns.Handler interface implementation, handles all DNS requests
 func (s *Server) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	var err error
 	resp := new(dns.Msg)
@@ -67,11 +70,13 @@ func (s *Server) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	}
 }
 
+// Block and listen to requests
 func (s *Server) ListenAndServe() error {
 	s.logger.Info("Starting DNS server")
 	return s.dnsServer.ListenAndServe()
 }
 
+// Block and shutdown internal dns.Server
 func (s *Server) Shutdown() error {
 	s.logger.Info("Shutting down DNS server")
 	return s.dnsServer.Shutdown()

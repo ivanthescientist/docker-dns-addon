@@ -1,5 +1,6 @@
 package container
 
+// Container is generic container descriptor containing only business domain relevant fields
 type Container struct {
 	ID   string
 	Name string

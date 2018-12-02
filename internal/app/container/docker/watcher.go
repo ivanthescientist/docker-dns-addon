@@ -12,6 +12,7 @@ import (
 	"sync"
 )
 
+// Watcher is a docker event watcher, which listens for relevant container-related events (e.g. start/stop)
 type Watcher struct {
 	doneCh  chan struct{}
 	wg      *sync.WaitGroup
@@ -22,6 +23,7 @@ type Watcher struct {
 	eventCh <-chan events.Message
 }
 
+// NewWatcher constructs a new watcher using docker client constructed from environment
 func NewWatcher(handler container.EventHandler, logger *log.Logger) (*Watcher, error) {
 	doneCh := make(chan struct{})
 	wg := &sync.WaitGroup{}
@@ -41,6 +43,7 @@ func NewWatcher(handler container.EventHandler, logger *log.Logger) (*Watcher, e
 	}, nil
 }
 
+// Start loads initial list of containers and starts listening to container-related events
 func (w *Watcher) Start() error {
 	w.logger.Print("Starting docker event watcher")
 	filter := filters.NewArgs()
@@ -56,6 +59,19 @@ func (w *Watcher) Start() error {
 	}
 
 	go w.watch()
+	return nil
+}
+
+// Stop closes client and stops event listening loop
+func (w *Watcher) Stop() error {
+	w.logger.Print("Stopping docker event watcher")
+	err := w.client.Close()
+	if err != nil {
+		return err
+	}
+
+	w.doneCh <- struct{}{}
+	w.wg.Wait()
 	return nil
 }
 
@@ -79,25 +95,13 @@ func (w *Watcher) loadInitialList() error {
 	return nil
 }
 
-func (w *Watcher) Stop() error {
-	w.logger.Print("Stopping docker event watcher")
-	err := w.client.Close()
-	if err != nil {
-		return err
-	}
-
-	w.doneCh <- struct{}{}
-	w.wg.Wait()
-	return nil
-}
-
 func (w *Watcher) watch() {
 	for {
 		select {
 		case event := <-w.eventCh:
 			w.handleEvent(event)
 		case err := <-w.errCh:
-			w.logger.Fatalf("Docker event watcher recieved err in event stream: %s", err)
+			w.logger.Fatalf("Docker event watcher received err in event stream: %s", err)
 			return
 		case <-w.doneCh:
 			w.logger.Print("Done stopping docker event watcher")

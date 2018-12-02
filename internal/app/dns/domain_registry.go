@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// DomainRegistry is a thread-safe domain to address map, it also handles creation of domains through getDomain method
 type DomainRegistry struct {
 	domainIndex  map[string]container.Container
 	indexMutex   *sync.RWMutex
@@ -13,6 +14,7 @@ type DomainRegistry struct {
 	domainSuffix string
 }
 
+// Create new registry using provided domainSuffix for domain creation
 func NewDomainRegistry(logger *log.Logger, domainSuffix string) *DomainRegistry {
 	return &DomainRegistry{
 		domainIndex:  make(map[string]container.Container),
@@ -22,6 +24,7 @@ func NewDomainRegistry(logger *log.Logger, domainSuffix string) *DomainRegistry 
 	}
 }
 
+// Handle container event
 func (r *DomainRegistry) HandleEvent(event container.Event) {
 	switch event.Type {
 	case container.EventContainerStarted:
@@ -31,6 +34,7 @@ func (r *DomainRegistry) HandleEvent(event container.Event) {
 	}
 }
 
+// Wait for all ongoing reads and then add domain record for a container
 func (r *DomainRegistry) AddRecord(c container.Container) {
 	r.indexMutex.Lock()
 	defer r.indexMutex.Unlock()
@@ -41,6 +45,7 @@ func (r *DomainRegistry) AddRecord(c container.Container) {
 
 }
 
+// Wait for all ongoing reads and then remove domain record for a container
 func (r *DomainRegistry) RemoveRecord(c container.Container) {
 	r.indexMutex.Lock()
 	defer r.indexMutex.Unlock()
@@ -50,10 +55,7 @@ func (r *DomainRegistry) RemoveRecord(c container.Container) {
 	delete(r.domainIndex, domain)
 }
 
-func (r *DomainRegistry) getDomain(c container.Container) string {
-	return c.Name + r.domainSuffix
-}
-
+// Resolve domain address, if not present return an empty string
 func (r *DomainRegistry) ResolveDomain(domain string) string {
 	r.indexMutex.RLock()
 	defer r.indexMutex.RUnlock()
@@ -63,4 +65,8 @@ func (r *DomainRegistry) ResolveDomain(domain string) string {
 	}
 
 	return ""
+}
+
+func (r *DomainRegistry) getDomain(c container.Container) string {
+	return c.Name + r.domainSuffix
 }
