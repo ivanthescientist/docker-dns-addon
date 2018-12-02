@@ -4,9 +4,9 @@ package container
 type EventType int
 
 const (
-	// Container started event type
+	// EventContainerStarted indicates container has started and ready to be added to DNS
 	EventContainerStarted EventType = iota
-	// Container stopped event type
+	// EventContainerStopped indicates container has stopped and should be removed from DNS
 	EventContainerStopped EventType = iota
 )
 
