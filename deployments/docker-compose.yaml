@@ -1,0 +1,7 @@
+version: "3"
+services:
+  dockernds:
+    container_name: dockerdns
+    build:
+      context: ../
+      dockerfile: Dockerfile

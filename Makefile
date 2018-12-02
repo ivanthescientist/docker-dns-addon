@@ -6,5 +6,5 @@ clean:
 .PHONY: clean
 
 build:
-	go build -o bin/dockerdns dockerdns.go
+	go build -o bin/dockerdns cmd/dockerdns/main.go
 .PHONY: build
