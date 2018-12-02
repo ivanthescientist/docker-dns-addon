@@ -14,7 +14,7 @@ type DomainRegistry struct {
 	domainSuffix string
 }
 
-// Create new registry using provided domainSuffix for domain creation
+// NewDomainRegistry creates new registry using provided domainSuffix for domain creation
 func NewDomainRegistry(logger *log.Logger, domainSuffix string) *DomainRegistry {
 	return &DomainRegistry{
 		domainIndex:  make(map[string]container.Container),
@@ -24,7 +24,7 @@ func NewDomainRegistry(logger *log.Logger, domainSuffix string) *DomainRegistry 
 	}
 }
 
-// Handle container event
+// HandleEvent translates container events into appropriate actions e.g. adding or removing domain record for container
 func (r *DomainRegistry) HandleEvent(event container.Event) {
 	switch event.Type {
 	case container.EventContainerStarted:
@@ -34,7 +34,7 @@ func (r *DomainRegistry) HandleEvent(event container.Event) {
 	}
 }
 
-// Wait for all ongoing reads and then add domain record for a container
+// AddRecord constructs a domain and adds a domain record for it, blocks until all current reads are done
 func (r *DomainRegistry) AddRecord(c container.Container) {
 	r.indexMutex.Lock()
 	defer r.indexMutex.Unlock()
@@ -45,7 +45,7 @@ func (r *DomainRegistry) AddRecord(c container.Container) {
 
 }
 
-// Wait for all ongoing reads and then remove domain record for a container
+// RemoveRecord constructs a domain and removes corresponding domain record, blocks until all current reads are done
 func (r *DomainRegistry) RemoveRecord(c container.Container) {
 	r.indexMutex.Lock()
 	defer r.indexMutex.Unlock()
@@ -55,7 +55,7 @@ func (r *DomainRegistry) RemoveRecord(c container.Container) {
 	delete(r.domainIndex, domain)
 }
 
-// Resolve domain address, if not present return an empty string
+// ResolveDomain resolves domain address, if not present returns an empty string
 func (r *DomainRegistry) ResolveDomain(domain string) string {
 	r.indexMutex.RLock()
 	defer r.indexMutex.RUnlock()
