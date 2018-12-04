@@ -11,9 +11,11 @@ A minimalistic DNS server which provides default domains for deployed docker con
 - dep (any compatible version with go 1.10)
 
 ## Building
-run `make install-dependencies` in the project root to install dependencies
-run `make clean build` to build the project binaries
-run `make uninstall install` to build docker image and install as docker container (also make a clean build by default)
+- `make install-dependencies` in the project root to install dependencies
+- `make build` to build the project binaries
+- `make install` to install built binaries as docker container
+- `make rebuild` - clean and then build the project 
+- `make reinstall` - remove existing installation and then rebuild and install binaries as docker container
 
 ## Setup
 By default the DNS server is deployed on a static IP `172.100.0.2` using a docker network `172.100.0.0/16`, this can be 

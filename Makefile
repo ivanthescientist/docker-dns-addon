@@ -13,10 +13,16 @@ build:
 	go build -o bin/dockerdns cmd/dockerdns/main.go
 .PHONY: build
 
-install: clean build
+rebuild: clean build
+.PHONY: rebuild
+
+install:
 	sudo docker-compose -f ./deployments/docker-compose.yaml up -d --build
 .PHONY: install
 
 uninstall:
 	sudo docker-compose -f ./deployments/docker-compose.yaml down
 .PHONY: uninstall
+
+reinstall: uninstall rebuild install
+.PHONY: reinstall
