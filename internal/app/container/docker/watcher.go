@@ -7,10 +7,14 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	dockerclient "github.com/docker/docker/client"
 	"github.com/ivanthescientist/docker-dns-addon/internal/app/container"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"sync"
 )
+
+// ErrCannotGetContainerIPAddress signals that for some reason all attempts to resolve container's ip have failed
+var ErrCannotGetContainerIPAddress = errors.New("can not get container ip address")
 
 // Watcher is a docker event watcher, which listens for relevant container-related events (e.g. start/stop)
 type Watcher struct {
@@ -85,7 +89,8 @@ func (w *Watcher) loadInitialList() error {
 		var event container.Event
 		event.Container, err = w.getContainer(c.ID)
 		if err != nil {
-			return err
+			w.logger.Errorf("Failed to fetch additional container info for container: %s", c.ID)
+			continue
 		}
 		event.Type = container.EventContainerStarted
 
@@ -127,6 +132,7 @@ func (w *Watcher) handleEvent(message events.Message) {
 	event.Container, err = w.getContainer(message.ID)
 	if err != nil {
 		w.logger.Errorf("Failed to fetch additional container info [%s]: %s", message.ID, err)
+		return
 	}
 
 	w.handler(event)
@@ -139,10 +145,40 @@ func (w *Watcher) getContainer(id string) (container.Container, error) {
 	}
 
 	name := transformContainerName(containerInfo.Name)
+	addr := getIpAddress(&containerInfo)
+
+	if addr == "" {
+		return container.Container{}, ErrCannotGetContainerIPAddress
+	}
 
 	return container.Container{
 		ID:   id,
 		Name: name,
-		Addr: containerInfo.NetworkSettings.IPAddress,
+		Addr: addr,
 	}, nil
+}
+
+func getIpAddress(containerInfo *types.ContainerJSON) string {
+	var addr = containerInfo.NetworkSettings.IPAddress
+	if addr != "" {
+		return addr
+	}
+
+	for _, network := range containerInfo.NetworkSettings.Networks {
+		addr = network.IPAddress
+		if addr != "" {
+			return addr
+		}
+	}
+
+	if isHostNetwork(containerInfo) {
+		return "127.0.0.1"
+	}
+
+	return ""
+}
+
+func isHostNetwork(containerInfo *types.ContainerJSON) bool {
+	var _, isHost = containerInfo.NetworkSettings.Networks["host"]
+	return isHost
 }

@@ -38,6 +38,10 @@ func (s *Server) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	resp.SetReply(r)
 	// Return an empty response in worst case scenario
 	defer func() {
+		if resp.Answer == nil {
+			resp.SetRcode(r, dns.RcodeServerFailure)
+		}
+
 		err = w.WriteMsg(resp)
 		if err != nil {
 			s.logger.Errorf("Failed to write dns response: %s", err)
@@ -52,6 +56,7 @@ func (s *Server) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	s.logger.Infof("Received resolution request for: %s", requestName)
 
 	addr := s.registry.ResolveDomain(requestName)
+	s.logger.Infof("Resolved domain to address: %s", net.ParseIP(addr))
 	if addr == "" {
 		return
 	}

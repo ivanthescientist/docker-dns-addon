@@ -1,7 +1,24 @@
 version: "3"
 services:
-  dockernds:
-    container_name: dockerdns
+  dockerdns:
     build:
       context: ../
       dockerfile: Dockerfile
+    container_name: dockerdns
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    networks:
+      dnsnetwork:
+        ipv4_address: 172.100.0.2
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=53
+      - SERVER_PROTOCOL=udp
+      - DOMAIN_SUFFIX=.docker.
+    restart: always
+networks:
+  dnsnetwork:
+    ipam:
+      config:
+        - subnet: 172.100.0.0/16
