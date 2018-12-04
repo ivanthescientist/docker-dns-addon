@@ -26,3 +26,14 @@ uninstall:
 
 reinstall: uninstall rebuild install
 .PHONY: reinstall
+
+install-dockerhub:
+	sudo docker-compose -f ./deployments/docker-compose.dockerhub.yaml up -d --build
+.PHONY: install-dockerhub
+
+uninstall-dockerhub:
+	sudo docker-compose -f ./deployments/docker-compose.dockerhub.yaml down
+.PHONY: uninstall-dockerhub
+
+reinstall-dockerhub: uninstall-dockerhub install-dockerhub
+.PHONY: reinstall-dockerhub

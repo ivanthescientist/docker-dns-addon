@@ -25,7 +25,7 @@ type Config struct {
 func GetFromEnv() *Config {
 	v := viper.New()
 	v.SetDefault(DomainSuffix, ".docker.")
-	v.SetDefault(ServerHost, "localhost")
+	v.SetDefault(ServerHost, "0.0.0.0")
 	v.SetDefault(ServerPort, 5300)
 	v.SetDefault(ServerProtocol, "udp")
 

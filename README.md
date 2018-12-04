@@ -19,6 +19,14 @@ provided you keep the default domain suffix (which is `.docker.`, notice that tr
 - `make rebuild` - clean and then build the project 
 - `make reinstall` - remove existing installation and then rebuild and install binaries as docker container
 
+## Installing from Dockerhub
+For convenience there is a built image on dockerhub (beware that it is built locally on my machine for now and not on some trusted external CI):
+`ivanthescientist/docker-dns-addon`
+There is also a version of docker-compose.yaml using it `deployments/docker-compose-dockerhub.yaml` and several make targets: 
+- `make install-dockerhub` - installs from dockerhub image
+- `make uninstall-dockerhub` - removes deployment from dockerhub
+- `make reinstall-dockerhub` - combined uninstall and install, just in case you want to scrap old version and install latest one
+
 ## Setup
 By default the DNS server is deployed on a static IP `172.100.0.2` using a docker network `172.100.0.0/16`, this can be 
 changed in docker-compose along with other configuration options. To start using the service after install it through `make install`
